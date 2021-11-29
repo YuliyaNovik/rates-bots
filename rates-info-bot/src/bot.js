@@ -16,7 +16,7 @@ const getRates = async () => {
 class RatesInfoBot {
     constructor() {
         this.bot = new TelegramBot(token);
-        this.bot.onText("/start", this.sendRates.bind(this));
+        this.bot.onMessage(this.sendRates.bind(this));
     }
 
     async sendRates(message) {

@@ -56,7 +56,7 @@ class TelegramBot {
 
     constructor(token) {
         this.token = token;
-        this.textEvent = new EventEmitter();
+        this.messageEvent = new EventEmitter();
         this.update(undefined);
     }
 
@@ -66,7 +66,7 @@ class TelegramBot {
                 for (const result of response.result) {
                     if (result.message) {
                         offset = result.update_id + 1;
-                        this.textEvent.emit(result.message.text, result.message);
+                        this.messageEvent.emit("message", result.message);
                     }
                 }
             }
@@ -75,8 +75,8 @@ class TelegramBot {
         });
     }
 
-    onText(command, callback) {
-        this.textEvent.addListener(command, callback);
+    onMessage(callback) {
+        this.messageEvent.addListener("message", callback);
     }
 
     async sendMessage(chatId, message, parseMode) {
