@@ -25,7 +25,10 @@ class RatesInfoBot {
         const formatter = new HtmlFormatter();
         const ratesMessage = createRatesMessage(rates,"BYN", formatter);
         const result = await this.bot.sendMessage(chatId, ratesMessage, formatter.parseMode);
-        console.log(result);
+
+        if (!result.ok) {
+            console.log(result);
+        }
     }
 }
 
