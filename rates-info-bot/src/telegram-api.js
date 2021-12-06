@@ -1,5 +1,6 @@
 const { get, post } = require("./request");
 const { EventEmitter } = require("events");
+const { generateBoundary, createMultipartDataBuffer } = require("./formdata");
 
 const HOST_NAME = "api.telegram.org";
 const BASE_URL = "https://" + HOST_NAME;
@@ -41,7 +42,7 @@ const sendMessage = async (token, chatId, text, parseMode) => {
     const method = "sendMessage";
     const options = {
         hostname: HOST_NAME,
-        path: "/"+ ["bot" + token, method].join("/"),
+        path: "/" + ["bot" + token, method].join("/"),
         method: "POST",
         headers: {
             "Content-Type": "application/json",
@@ -50,6 +51,31 @@ const sendMessage = async (token, chatId, text, parseMode) => {
     };
 
     return await post(options, postData);
+}
+
+const sendPhoto = async (token, chatId, photo) => {
+    const method = "sendPhoto";
+    const boundary = generateBoundary();
+
+    const body = createMultipartDataBuffer(boundary, photo);
+
+    const options = {
+        hostname: HOST_NAME,
+        path: "/" + ["bot" + token, method].join("/") + "?" + "chat_id=" + chatId,
+        method: "POST",
+        headers: {
+            "Content-Type": "multipart/form-data; boundary=" + boundary,
+            "Content-Length": body.length
+        }
+    };
+
+    try {
+        const response = await post(options, body);
+        console.log(response);
+        return response;
+    } catch (e) {
+        console.log(e);
+    }
 }
 
 class TelegramBot {
@@ -66,7 +92,7 @@ class TelegramBot {
                 for (const result of response.result) {
                     if (result.message) {
                         offset = result.update_id + 1;
-                        this.messageEvent.emit("message", result.message);
+                        this.messageEvent.emit(result.message.text, result.message);
                     }
                 }
             }
@@ -75,13 +101,17 @@ class TelegramBot {
         });
     }
 
-    onMessage(callback) {
-        this.messageEvent.addListener("message", callback);
+    onMessage(event, callback) {
+        this.messageEvent.addListener(event, callback);
     }
 
     async sendMessage(chatId, message, parseMode) {
         return await sendMessage(this.token, chatId, message, parseMode);
     }
+
+    async sendPhoto(chatId, photo) {
+        return await sendPhoto(this.token, chatId, photo);
+    }
 }
 
-module.exports = { createTelegramURL, TelegramBot };
+module.exports = {createTelegramURL, TelegramBot};
