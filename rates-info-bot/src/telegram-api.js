@@ -1,6 +1,6 @@
 const { get, post } = require("./request");
 const { EventEmitter } = require("events");
-const { generateBoundary, createMultipartDataBuffer } = require("./formdata");
+const { generateMultipartFormData } = require("./formdata");
 
 const HOST_NAME = "api.telegram.org";
 const BASE_URL = "https://" + HOST_NAME;
@@ -55,9 +55,7 @@ const sendMessage = async (token, chatId, text, parseMode) => {
 
 const sendPhoto = async (token, chatId, photo) => {
     const method = "sendPhoto";
-    const boundary = generateBoundary();
-
-    const body = createMultipartDataBuffer(boundary, photo);
+    const { boundary, body} = generateMultipartFormData(photo);
 
     const options = {
         hostname: HOST_NAME,

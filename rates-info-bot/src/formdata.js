@@ -18,4 +18,11 @@ const createMultipartDataBuffer = (boundary, photo) => {
     ]);
 }
 
-module.exports = { generateBoundary, createMultipartDataBuffer };
+const generateMultipartFormData = (photo) => {
+    const boundary = generateBoundary();
+    const body = createMultipartDataBuffer(boundary, photo);
+
+    return { boundary, body };
+}
+
+module.exports = { generateMultipartFormData };
