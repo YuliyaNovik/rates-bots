@@ -65,8 +65,8 @@ class RatesInfoBot {
 
     async sendInlineCurrencyKeyboard(chatId, names) {
         try {
-            const buttons = formatInlineKeyboard(names, 4);
-            await this.bot.sendInlineKeyboard(chatId, buttons);
+            const keyboard = formatInlineKeyboard(names, 4);
+            await this.bot.sendInlineKeyboard(chatId, keyboard);
         } catch (error) {
             await this.bot.sendMessage(
                 chatId,

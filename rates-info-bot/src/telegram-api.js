@@ -73,24 +73,15 @@ const answerCallbackQuery = async (token, chatId, callbackQueryId, text) => {
     return await post(generateOptions(token, method, headers), postData);
 }
 
-const sendInlineKeyboard = async (token, chatId, buttons) => {
+const sendInlineKeyboard = async (token, chatId, inlineKeyboard) => {
     const body = {
         chat_id: chatId,
         text: "Please select:"
     }
 
-    if (buttons) {
+    if (inlineKeyboard) {
         body["reply_markup"] = JSON.stringify({
-                inline_keyboard: buttons.map((row) => {
-                        return row.map((button) => {
-                                return {
-                                    text: button,
-                                    callback_data: button
-                                }
-                            }
-                        )
-                    }
-                )
+                inline_keyboard: inlineKeyboard
             }
         )
     }
@@ -166,8 +157,8 @@ class TelegramBot {
         return await sendMessage(this.token, chatId, message, parseMode);
     }
 
-    async sendInlineKeyboard(chatId, buttons) {
-        return await sendInlineKeyboard(this.token, chatId, buttons);
+    async sendInlineKeyboard(chatId, inlineKeyboard) {
+        return await sendInlineKeyboard(this.token, chatId, inlineKeyboard);
     }
 
     async answerCallbackQuery(chatId, callbackQueryId, text) {
