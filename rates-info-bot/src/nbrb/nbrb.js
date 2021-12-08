@@ -1,4 +1,4 @@
-const { get } = require("../request");
+const { get } = require("../http/request");
 const { convertDate } = require("./date");
 
 const getCurrency = async (id) => {

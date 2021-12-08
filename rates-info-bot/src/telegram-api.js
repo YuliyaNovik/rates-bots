@@ -1,6 +1,6 @@
-const { get, post } = require("./request");
+const { get, post } = require("./http/request");
 const { EventEmitter } = require("events");
-const { generateMultipartFormData } = require("./formdata");
+const { generateMultipartFormData } = require("./http/formdata");
 
 const HOST_NAME = "api.telegram.org";
 const BASE_URL = "https://" + HOST_NAME;
