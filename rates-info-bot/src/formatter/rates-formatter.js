@@ -12,8 +12,7 @@ const createRatesMessage = (rates, defaultCurrency, textFormatter) => {
 }
 
 const numberToFixedColumnWidth = (value, decimalPlaces = 4, width = 8) => {
-    const fixedValue = value.toFixed(decimalPlaces);
-    return " ".repeat(width - fixedValue.length) + fixedValue;
+    return value.toFixed(decimalPlaces).padStart(width, " ");
 }
 
 const formatScale = (scale, width = 6) => {
@@ -21,7 +20,7 @@ const formatScale = (scale, width = 6) => {
         return " ".repeat(width);
     }
 
-    return " ".repeat(width - scale.toString().length) + scale.toString();
+    return scale.toString().padStart(width, " ");
 }
 
 module.exports = { createRatesMessage };
