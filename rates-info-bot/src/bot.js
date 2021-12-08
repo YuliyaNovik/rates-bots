@@ -17,7 +17,7 @@ const getRates = async () => {
 class RatesInfoBot {
     constructor() {
         this.bot = new TelegramBot(token);
-        this.bot.onMessage("/start", this.sendRates.bind(this));
+        this.bot.onMessage("/rates", this.sendRates.bind(this));
         this.bot.onMessage("/average", this.sendCurrencyList.bind(this));
         this.bot.onInlineCallback(this.sendCurrencyCallback.bind(this));
     }
