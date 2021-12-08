@@ -15,6 +15,15 @@ const createTelegramURL = (token, method, queryParams) => {
     return url;
 }
 
+const generateOptions = (token, method, headers) => {
+    return {
+        hostname: HOST_NAME,
+            path: "/" + ["bot" + token, method].join("/"),
+        method: "POST",
+        headers
+    };
+}
+
 const getUpdates = async (token, offset) => {
     const method = "getUpdates";
     const params = new Map([
@@ -40,17 +49,59 @@ const sendMessage = async (token, chatId, text, parseMode) => {
 
     const postData = JSON.stringify(body);
     const method = "sendMessage";
-    const options = {
-        hostname: HOST_NAME,
-        path: "/" + ["bot" + token, method].join("/"),
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-            "Content-Length": postData.length
-        }
+    const headers = {
+        "Content-Type": "application/json",
+        "Content-Length": postData.length
     };
 
-    return await post(options, postData);
+    return await post(generateOptions(token, method, headers), postData);
+}
+
+const answerCallbackQuery = async (token, chatId, callbackQueryId) => {
+    const body = {
+        chat_id: chatId,
+        callback_query_id: callbackQueryId,
+        text: "Result:"
+    }
+
+    const postData = JSON.stringify(body);
+    const method = "sendMessage";
+    const headers = {
+        "Content-Type": "application/json"
+    };
+
+    return await post(generateOptions(token, method, headers), postData);
+}
+
+const sendInlineKeyboard = async (token, chatId, buttons) => {
+    const body = {
+        chat_id: chatId,
+        text: "Please select:"
+    }
+
+    if (buttons) {
+        body["reply_markup"] = JSON.stringify({
+                inline_keyboard: buttons.map((row) => {
+                        return row.map((button) => {
+                                return {
+                                    text: button,
+                                    callback_data: button
+                                }
+                            }
+                        )
+                    }
+                )
+            }
+        )
+    }
+
+    const postData = JSON.stringify(body);
+    const method = "sendMessage";
+    const headers = {
+        "Content-Type": "application/json"
+    };
+
+    return await post(generateOptions(token, method, headers), postData);
 }
 
 const sendPhoto = async (token, chatId, photo) => {
@@ -69,7 +120,6 @@ const sendPhoto = async (token, chatId, photo) => {
 
     try {
         const response = await post(options, body);
-        console.log(response);
         return response;
     } catch (e) {
         console.log(e);
@@ -81,6 +131,7 @@ class TelegramBot {
     constructor(token) {
         this.token = token;
         this.messageEvent = new EventEmitter();
+        this.inlineCallbackEvent = new EventEmitter();
         this.update(undefined);
     }
 
@@ -91,6 +142,10 @@ class TelegramBot {
                     if (result.message) {
                         offset = result.update_id + 1;
                         this.messageEvent.emit(result.message.text, result.message);
+                    }
+                    if (result.callback_query) {
+                        offset = result.update_id + 1;
+                        this.inlineCallbackEvent.emit("inline_callback", result.callback_query);
                     }
                 }
             }
@@ -103,8 +158,20 @@ class TelegramBot {
         this.messageEvent.addListener(event, callback);
     }
 
+    onInlineCallback(callback) {
+        this.inlineCallbackEvent.addListener("inline_callback", callback);
+    }
+
     async sendMessage(chatId, message, parseMode) {
         return await sendMessage(this.token, chatId, message, parseMode);
+    }
+
+    async sendInlineKeyboard(chatId, buttons) {
+        return await sendInlineKeyboard(this.token, chatId, buttons);
+    }
+
+    async answerCallbackQuery(chatId, callbackQueryId) {
+        return await answerCallbackQuery(this.token, chatId, callbackQueryId);
     }
 
     async sendPhoto(chatId, photo) {
