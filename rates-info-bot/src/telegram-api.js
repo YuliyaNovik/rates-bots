@@ -57,11 +57,11 @@ const sendMessage = async (token, chatId, text, parseMode) => {
     return await post(generateOptions(token, method, headers), postData);
 }
 
-const answerCallbackQuery = async (token, chatId, callbackQueryId) => {
+const answerCallbackQuery = async (token, chatId, callbackQueryId, text) => {
     const body = {
         chat_id: chatId,
         callback_query_id: callbackQueryId,
-        text: "Result:"
+        text,
     }
 
     const postData = JSON.stringify(body);
@@ -106,7 +106,7 @@ const sendInlineKeyboard = async (token, chatId, buttons) => {
 
 const sendPhoto = async (token, chatId, photo) => {
     const method = "sendPhoto";
-    const { boundary, body} = generateMultipartFormData(photo);
+    const { boundary, body} = generateMultipartFormData(photo, "photo", "screenshot.jpeg");
 
     const options = {
         hostname: HOST_NAME,
@@ -170,8 +170,8 @@ class TelegramBot {
         return await sendInlineKeyboard(this.token, chatId, buttons);
     }
 
-    async answerCallbackQuery(chatId, callbackQueryId) {
-        return await answerCallbackQuery(this.token, chatId, callbackQueryId);
+    async answerCallbackQuery(chatId, callbackQueryId, text) {
+        return await answerCallbackQuery(this.token, chatId, callbackQueryId, text);
     }
 
     async sendPhoto(chatId, photo) {

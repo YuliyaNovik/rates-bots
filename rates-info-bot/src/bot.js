@@ -38,7 +38,7 @@ class RatesInfoBot {
         const currency = callbackQuery.data;
         const message = callbackQuery.message;
         const chatId = message.chat.id;
-        await this.bot.answerCallbackQuery(chatId, callbackQuery.id);
+        await this.bot.answerCallbackQuery(chatId, callbackQuery.id, "Moving average:");
         await this.sendImage(chatId);
     }
 
