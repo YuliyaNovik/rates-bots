@@ -3,6 +3,7 @@ const { getCurrenciesOnDate } = require("./nbrb/nbrb");
 const { HtmlFormatter } = require("./formatter/html-formatter");
 const { createRatesMessage } = require("./formatter/rates-formatter");
 const { readFile } = require("fs/promises");
+const { formatInlineKeyboard } = require("./formatter/keyboard-formatter");
 const token = process.env.TOKEN;
 
 const getRates = async () => {
@@ -39,12 +40,11 @@ class RatesInfoBot {
         const message = callbackQuery.message;
         const chatId = message.chat.id;
         await this.bot.answerCallbackQuery(chatId, callbackQuery.id, "Moving average:");
-        await this.sendImage(chatId);
+        await this.sendImage(chatId, "1.jpeg");
     }
 
-    async sendImage(chatId) {
+    async sendImage(chatId, path) {
         try {
-            const path = "1.jpeg";
             const screenshot = await readFile(path);
             await this.bot.sendPhoto(chatId, screenshot);
         } catch (error) {
@@ -65,12 +65,7 @@ class RatesInfoBot {
 
     async sendInlineCurrencyKeyboard(chatId, names) {
         try {
-            const rowLength = 4;
-            const buttons = [];
-            for (let i = 0; i < names.length; i+= rowLength) {
-                buttons.push(names.slice(i, i + rowLength));
-            }
-
+            const buttons = formatInlineKeyboard(names, 4);
             await this.bot.sendInlineKeyboard(chatId, buttons);
         } catch (error) {
             await this.bot.sendMessage(
