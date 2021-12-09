@@ -1,14 +1,13 @@
 const createRatesMessage = (rates, defaultCurrency, textFormatter) => {
-    let response = "";
+    return rates.reduce((acc, rate) => acc + createRatesMessageRow(rate, defaultCurrency, textFormatter), "");
+}
 
-    for (const rate of rates) {
-        response += textFormatter.getCode(defaultCurrency + " to "
-            + formatScale(rate.currency.scale) + " "
-            + rate.currency.abbreviation + " "
-            + numberToFixedColumnWidth(rate.rate.officialRate)) + "\n";
-    }
+const createRatesMessageRow = (rate, defaultCurrency, textFormatter) => {
+    const scale = formatScale(rate.currency.scale);
+    const abbreviation = rate.currency.abbreviation;
+    const officialRate = numberToFixedColumnWidth(rate.rate.officialRate);
 
-    return response;
+    return textFormatter.getCode(`${defaultCurrency} to ${scale} ${abbreviation} ${officialRate}\n`);
 }
 
 const numberToFixedColumnWidth = (value, decimalPlaces = 4, width = 8) => {
