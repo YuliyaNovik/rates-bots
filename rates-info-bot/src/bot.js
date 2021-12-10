@@ -4,7 +4,9 @@ const { HtmlFormatter } = require("./formatter/html-formatter");
 const { createRatesMessage } = require("./formatter/rates-formatter");
 const { readFile } = require("fs/promises");
 const { formatInlineKeyboard } = require("./formatter/keyboard-formatter");
+const { makeScreenshot } = require("./screenshot");
 const token = process.env.TOKEN;
+const chartURL = process.env.CHART_URL;
 
 const getRates = async () => {
     try {
@@ -39,14 +41,14 @@ class RatesInfoBot {
         const currency = callbackQuery.data;
         const message = callbackQuery.message;
         const chatId = message.chat.id;
-        await this.bot.answerCallbackQuery(chatId, callbackQuery.id, "Moving average:");
-        await this.sendImage(chatId, "1.jpeg");
+        await this.bot.answerCallbackQuery(chatId, callbackQuery.id, "Please wait a few seconds");
+        const screenshot = await makeScreenshot(`${chartURL}?currency=${currency}`, "#chart");
+        await this.sendImage(chatId, screenshot);
     }
 
-    async sendImage(chatId, path) {
+    async sendImage(chatId, file) {
         try {
-            const screenshot = await readFile(path);
-            await this.bot.sendPhoto(chatId, screenshot);
+            await this.bot.sendPhoto(chatId, file);
         } catch (error) {
             await this.bot.sendMessage(
                 chatId,
